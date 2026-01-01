@@ -77,6 +77,32 @@ total_spool_diameter = outer_wall_radius * 2;
 
 // ===== HELPER MODULES =====
 
+// ===== Cable Representation Modules =====
+
+// Create a straight cable section
+// Parameters:
+//   diameter - diameter of the cable
+//   length - length of the straight section
+// Centered on origin, extends along Z-axis
+module cable_straight(diameter, length) {
+    cylinder(d=diameter, h=length, center=true);
+}
+
+// Create a curved cable section (arc from a torus)
+// Parameters:
+//   diameter - diameter of the cable
+//   bend_radius - radius to the center of the cable path
+//   arc_angle - degrees of arc to create (e.g., 90, 180)
+// Arc starts at 0° and sweeps arc_angle degrees in XY plane
+// Center of arc is at origin
+module cable_arc(diameter, bend_radius, arc_angle) {
+    rotate_extrude(angle=arc_angle)
+        translate([bend_radius, 0, 0])
+            circle(d=diameter);
+}
+
+// ===== Snap-fit Modules =====
+
 // Create a snap-fit male connector (protrusion)
 // Parameters:
 //   height - height of the snap connector
@@ -222,8 +248,9 @@ module print_layout() {
 // "plate" - shows only central plate
 // "wall" - shows only outer wall
 // "clip" - shows only retaining clip
+// "cable_test" - shows test cable sections
 
-render_mode = "assembly";
+render_mode = "cable_test";
 
 if (render_mode == "assembly") {
     assembly_view();
@@ -237,6 +264,28 @@ if (render_mode == "assembly") {
     outer_wall();
 } else if (render_mode == "clip") {
     retaining_clip();
+} else if (render_mode == "cable_test") {
+    // Test straight cable section
+    cable_straight(cable_diameter, 50);
+
+    // Test 90-degree arc
+    translate([40, 0, 0])
+        cable_arc(cable_diameter, min_bend_radius, 90);
+
+    // Test 180-degree arc (half circle)
+    translate([100, 0, 0])
+        cable_arc(cable_diameter, min_bend_radius, 180);
+
+    // Test S-bend composition (simulating cable through bobbin)
+    translate([0, 60, 0]) {
+        cable_straight(cable_diameter, 20);
+        translate([0, 0, 10])
+            rotate([0, 0, 90])
+                cable_arc(cable_diameter, 15, 90);
+        translate([15, 0, 25])
+            rotate([0, 90, 0])
+                cable_straight(cable_diameter, 30);
+    }
 }
 
 // ===== DESIGN NOTES =====
