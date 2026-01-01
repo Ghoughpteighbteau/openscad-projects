@@ -1,0 +1,30 @@
+# OpenSCAD temporary files
+*.backup
+*~
+.*.swp
+
+# Exported files (keeping source .scad files only)
+*.stl
+*.3mf
+*.amf
+*.off
+
+# 3D printer slicer files
+*.gcode
+*.3w
+*.gx
+*.ufp
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editor files
+.vscode/
+.idea/
+*.sublime-*
+
+# Build artifacts
+build/
+dist/
